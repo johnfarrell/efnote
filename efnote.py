@@ -3,7 +3,6 @@ from enum import Enum
 import os
 import errno
 
-DEBUG_MODE = False
 PATH = os.getenv('HOME', os.path.expanduser('~')) + '/.efnote'
 
 
@@ -12,6 +11,7 @@ PATH = os.getenv('HOME', os.path.expanduser('~')) + '/.efnote'
 def DebugLog(message):
     print("LOG: {}".format(message))
 
+# Loads the format file and parses all formats
 def LoadFormatFile(format_file):
     DebugLog("Loading format file...")
 
@@ -27,14 +27,33 @@ def LoadFormatFile(format_file):
     with open(format_file, 'w+') as opened_file:
         DebugLog("{} opened.".format(format_file))
 
+def ParseArgs(arguments):
+    # Simulate 'help' arg if no arguments are passed
+    if len(arguments) == 1:
+        arguments = ['-h']
         
+    for arg in enumerate(arguments):
+        # Display useage instructions
+        if (arg[1] == '-h') or (arg[1] == '--help'):
+            print("usage: efnote [OPTIONS] <commands>\n")
+            print("  Note-taking app for easy creation of custom format notes.\n")
+            print("Commands:")
+            print("  {0:8} {1}".format(
+                "view",
+                "Open the most recently edited entry"
+            ))
+            print("  {0:8} {1}".format(
+                "new",
+                "Create a new entry\n"
+            ))
+            print("Options:")
+            print("  {0:8} {1:2} {2:6} {3}\n".format(
+                "--help",
+                "-h",
+                "",
+                "Show this dialog and exit"
+            ))
 
-
-def main(args):
-    print("EF Note v0")
-
-    LoadFormatFile(PATH + "/formats.txt")
-        
 
 if __name__ == '__main__':
-    main(argv);
+    ParseArgs(argv)
