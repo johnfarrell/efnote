@@ -10,14 +10,16 @@ class EFNote:
     def __init__(self, main_path):
         # Listen for
         self.root_path = main_path
+        self.config_file = os.path.join(self.root_path, "formats.config")
         self.formats = {}
         self.ParseFormatFile()
         self.LoadFiles()
 
-    # Reads in formats.config file to read supported formats
-    def ParseFormatFile(self, file_name="formats.config"):
+
+    def ParseFormatFile(self):
+        """Reads in config file (defaults to formats.config) to read supported formats"""
         current_format = ""
-        for line in open(file_name, 'r+'):
+        for line in open(self.config_file, 'r+'):
             contents = line.split(' ')
 
             if(contents[0] == '<#'):
@@ -48,8 +50,6 @@ class EFNote:
 
         print(results.command)
         print(results.entry_type)
-
-
 
         while True:
             # Wait for input
