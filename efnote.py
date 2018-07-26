@@ -7,88 +7,67 @@ import argparse
 # Handles background code
 class EFNote:
 
-    def __init__(self):
-        # Listen for 
-        linein = input("What would you like to do? [n/v/e] > ")
-        print(linein)
+    def __init__(self, main_path):
+        # Listen for
+        self.root_path = main_path
+        self.formats = {}
+        self.ParseFormatFile()
+        self.LoadFiles()
 
-
-    def ParseFormatFile(self, file_name):
+    # Reads in formats.config file to read supported formats
+    def ParseFormatFile(self, file_name="formats.config"):
+        current_format = ""
         for line in open(file_name, 'r+'):
             contents = line.split(' ')
-            print(contents)
 
-    
+            if(contents[0] == '<#'):
+                current_format = contents[1].rstrip('\n')
+                self.formats[current_format] = []
+            
+            if(contents[0] == '<@'):
+                self.formats[current_format].append(contents[1].strip('\n'))
 
-        
+
+    def LoadFiles(self):
+        """Gets list of files in the root directory"""
+        self.file_list = os.listdir(self.root_path)
+        self.file_list.sort(key=lambda x: os.stat(os.path.join(self.root_path, x)).st_mtime, reverse=True)
+
+
+    def Run(self):
+        """
+        The main loop of this program, handles arguments from user
+        """
+
+        parser = argparse.ArgumentParser(description="Note-taking app for easy creation of custom formatted notes.")
+
+        parser.add_argument('command', nargs='?', action='store', choices=['new', 'view'])
+        parser.add_argument('entry_type', nargs='?', action='store')
+
+        results = parser.parse_args()
+
+        print(results.command)
+        print(results.entry_type)
+
+
+
+        while True:
+            # Wait for input
+            linein = input("What would you like to do? [n/v/q] > ")
+            # read input
+            if linein == "v" or linein == "view":
+            # Render based on input
+                for file in self.file_list:
+                    print("File {0:15} (last modified: {1:30})".format(file,
+                                                                os.stat(os.path.join(self.root_path, file)).st_mtime))
+            if linein == "q" or linein == "quit":
+                print("\nbye bitch\n")
+                quit()
 
 
 # Application setup/close handling
-PATH = os.getenv('HOME', os.path.expanduser('~')) + '/.efnote'
+# PATH = os.getenv('HOME', os.path.expanduser('~')) + '/.efnote'
 
 # Logs debug messages to the command-line
 def DebugLog(message):
     print("LOG: {}".format(message))
-
-# Loads the format file and parses all formats
-def LoadFormatFile(format_file):
-    DebugLog("Loading format file...")
-
-    # Create ~/.efnote directory if it doesn't exist
-    if not os.path.exists(PATH):
-        try:
-            os.mkdir(os.path.dirname(format_file))
-            DebugLog("{} directory created.".format(format_file))
-        except OSError:
-            if OSError.errno != errno.EEXIST:
-                raise
-
-    # Open format file for parsing
-    with open(os.path.join(PATH, format_file), 'w+') as opened_file:
-        DebugLog("{} opened.".format(format_file))
-
-
-# TODO: Convert ParseArgs to use ArgParse
-def ParseArgs(arguments):
-
-    parser = argparse.ArgumentParser(description="Note-taking app for easy creation of custom format notes.")
-    parser.add_argument()
-    # Simulate 'help' arg if no arguments are passed
-    if len(arguments) == 1:
-        arguments = ['-h']
-        
-    for arg in enumerate(arguments):
-        # Display useage instructions
-        if (arg[1] == '-h') or (arg[1] == '--help'):
-            print("usage: efnote [OPTIONS] <commands>\n")
-            print("  Note-taking app for easy creation of custom format notes.\n")
-            print("Commands:")
-            print("  {0:8} {1}".format(
-                "view",
-                "Open the most recently edited entry"
-            ))
-            print("  {0:8} {1}".format(
-                "new",
-                "Create a new entry\n"
-            ))
-            print("Options:")
-            print("  {0:8} {1:2} {2:6} {3}\n".format(
-                "--help",
-                "-h",
-                "",
-                "Show this dialog and exit"
-            ))
-
-def MainLoop():
-    
-    while True:
-        # Wait for input
-        # read input
-        # Render based on input
-        continue
-
-
-if __name__ == '__main__':
-    # Make sure 
-    application = EFNote()        
-    application.ParseFormatFile("formats.config")
