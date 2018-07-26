@@ -2,10 +2,29 @@ from sys import argv
 from enum import Enum
 import os
 import errno
+import argparse
 
+# Handles background code
+class EFNote:
+
+    def __init__(self):
+        # Listen for 
+        linein = input("What would you like to do? [n/v/e] > ")
+        print(linein)
+
+
+    def ParseFormatFile(self, file_name):
+        for line in open(file_name, 'r+'):
+            contents = line.split(' ')
+            print(contents)
+
+    
+
+        
+
+
+# Application setup/close handling
 PATH = os.getenv('HOME', os.path.expanduser('~')) + '/.efnote'
-
-
 
 # Logs debug messages to the command-line
 def DebugLog(message):
@@ -16,7 +35,7 @@ def LoadFormatFile(format_file):
     DebugLog("Loading format file...")
 
     # Create ~/.efnote directory if it doesn't exist
-    if not os.path.exists(os.path.dirname(format_file)):
+    if not os.path.exists(PATH):
         try:
             os.mkdir(os.path.dirname(format_file))
             DebugLog("{} directory created.".format(format_file))
@@ -24,10 +43,16 @@ def LoadFormatFile(format_file):
             if OSError.errno != errno.EEXIST:
                 raise
 
-    with open(format_file, 'w+') as opened_file:
+    # Open format file for parsing
+    with open(os.path.join(PATH, format_file), 'w+') as opened_file:
         DebugLog("{} opened.".format(format_file))
 
+
+# TODO: Convert ParseArgs to use ArgParse
 def ParseArgs(arguments):
+
+    parser = argparse.ArgumentParser(description="Note-taking app for easy creation of custom format notes.")
+    parser.add_argument()
     # Simulate 'help' arg if no arguments are passed
     if len(arguments) == 1:
         arguments = ['-h']
@@ -54,6 +79,16 @@ def ParseArgs(arguments):
                 "Show this dialog and exit"
             ))
 
+def MainLoop():
+    
+    while True:
+        # Wait for input
+        # read input
+        # Render based on input
+        continue
+
 
 if __name__ == '__main__':
-    ParseArgs(argv)
+    # Make sure 
+    application = EFNote()        
+    application.ParseFormatFile("formats.config")
