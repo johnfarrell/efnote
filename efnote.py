@@ -11,23 +11,26 @@ class EFNote:
         # Listen for
         self.root_path = main_path
         self.config_file = os.path.join(self.root_path, "formats.config")
-        self.formats = {}
-        self.ParseFormatFile()
+        self.formats = self.ParseFormatFile()
         self.LoadFiles()
 
 
     def ParseFormatFile(self):
         """Reads in config file (defaults to formats.config) to read supported formats"""
         current_format = ""
+        loaded_formats = {}
+        
         for line in open(self.config_file, 'r+'):
             contents = line.split(' ')
 
             if(contents[0] == '<#'):
                 current_format = contents[1].rstrip('\n')
-                self.formats[current_format] = []
-            
+                loaded_formats[current_format] = []
             if(contents[0] == '<@'):
-                self.formats[current_format].append(contents[1].strip('\n'))
+                loaded_formats[current_format].append(contents[1].strip('\n'))
+
+        return loaded_formats
+
 
 
     def LoadFiles(self):
