@@ -62,6 +62,9 @@ class EFNote:
             self.ViewNotes(results.entry_type)
 
     def PromptForCommand(self):
+        """
+        Prompts the user for an action if none was provided in program args
+        """
         command = input("\nNEW | VIEW | QUIT [n/v/q] > ")
         
         if(command == 'n'):
@@ -75,6 +78,9 @@ class EFNote:
             self.PromptForCommand()
 
     def CreateNewNote(self, note_type):
+        """
+        Creates a new note of a specified type; prompts user if no type is specified
+        """
         if(note_type is None):
             req_type = self.PromptForNoteType()
         else:
@@ -85,6 +91,9 @@ class EFNote:
         self.Exit()
 
     def PromptForNoteType(self):
+        """
+        Prompts user to enter a note format
+        """
         supported_types = ""
         counter = 0
         for curr_type in self.formats:
@@ -100,6 +109,9 @@ class EFNote:
 
 
     def ViewNotes(self, note_type):
+        """
+        Views notes of specific type; views all notes if none provided
+        """
         for file in self.file_list:
             print("File {0:15} (last modified: {1:30})".format(file,
                     os.stat(os.path.join(self.root_path, file)).st_mtime))
@@ -107,6 +119,9 @@ class EFNote:
         self.Exit()
 
     def Exit(self):
+        """
+        Handles program loop exiting
+        """
         cont = input("\nAny further action? [y/n] > ")
 
         if(cont == 'y'):
