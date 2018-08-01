@@ -65,6 +65,7 @@ class EFNote:
         """
         Prompts the user for an action if none was provided in program args
         """
+
         command = input("\nNEW | VIEW | QUIT [n/v/q] > ")
         
         if(command == 'n'):
@@ -81,29 +82,56 @@ class EFNote:
         """
         Creates a new note of a specified type; prompts user if no type is specified
         """
+
+        # Make sure that a certain journal type is being used.
         if(note_type is None):
             req_type = self.PromptForNoteType()
         else:
             req_type = note_type
 
-        print(req_type)
+        # Ensure requested type exists, prompt user
+        # for type creation if it doesn't. 
+        if(not req_type in self.formats):
+            new_format = input("There is no '{}' format, would you like to create one? [y/n] > ".format(req_type))
 
-        self.Exit()
+            if(new_format == 'y'):
+                self.CreateNewFormat(req_type)
+            else:
+                self.Exit()
+        
+        print("Creating new {} entry".format(req_type))
+                
+
+    def CreateNewFormat(self, format_name):
+        """
+        Guides user through easy creation of new formats
+
+        TO-DO: Finish implementation
+        """
+
+        print("Create new Format")
 
     def PromptForNoteType(self):
         """
-        Prompts user to enter a note format
+        Prompts user to enter a note format.
         """
         supported_types = ""
         counter = 0
+
+        # Loop through the current supported formats
+        # and concatenate them to a string for printing.
         for curr_type in self.formats:
             supported_types += curr_type
 
             if(counter != len(self.formats) - 1):
                 supported_types += " | "
                 counter += 1
+            # Format wrapping of type output so it doesn't overflow
+            # small terminals.
+            if(counter % 5 == 0):
+                supported_types += "\n"
 
-        print("{0} total format(s)...\n{1}".format(counter + 1, supported_types))
+        print("Supported Formats:\n{0}".format(supported_types))
         return input("Which format would you like to create? > ")
 
 
