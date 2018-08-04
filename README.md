@@ -70,8 +70,11 @@ adding a feature request using the [enhancement](https://github.com/FARRELLJJOHN
 
 #### To-Do
 
- - [x] Create To-Do list
- - [ ] Populate To-Do list
+ - [x] Create To-Do list.
+ - [ ] Create installation script.
+ - [ ] Implement supported format note creation.
+ - [ ] Created note searching
+ - [ ] Interactive note format creation
 
 ## Issues
 Please use the GitHub [issue tracker](https://github.com/FARRELLJJOHN/efnote/issues)
