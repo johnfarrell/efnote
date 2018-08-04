@@ -12,7 +12,7 @@
 * [Issues](#issues)
 
 ## What is EFNote?
-EFNote is designed to streamflow journalling, notetaking, bug-reporting, or any
+EFNote is designed to streamline journaling, notetaking, bug-reporting, or any
 other formattable text writing you do.
 
 EFNote is also in heavy development so changes will be frequent and functions
@@ -41,8 +41,27 @@ For quicker usage, EFNote provides a set of commands to speed the process up.
    View notes of a specified format sorted by most recently edited. Formats not specified in the `formats.efn` config file are similarly supported as in the `$ efnote new` command.
 
 ## Installation
-Not really anything to install at this point :/
 
+Due to EFNote being in heavy development, the install process is a bit convoluted.
+
+#### Clone EFNote
+```
+$ git clone https://github.com/johnfarrell/efnote.git
+```
+
+#### Run install script
+**Disclaimer**: Install script is currently not implemented, you have create a symlink yourself.
+
+This will install any dependencies and create a symlink to the directory allowing you to run efnote from anywhere
+
+```
+$ python3 install.py
+```
+
+#### Run EFNote
+```
+$ efnote
+```
 
 ## Contributing
 
