@@ -38,6 +38,11 @@ if not os.path.isfile(os.path.join(PATH, "formats.config")):
         print("How did this even happen?")
         quit()
 
+if not os.path.isdir(os.path.join(PATH, "data/")):
+    try:
+        os.mkdir(os.path.join(PATH, "data/"))
+    except:
+        print("Error create data directory...")
+
 application = efnote.EFNote(PATH)
-application.ParseFormatFile()
 application.Run()

@@ -1,5 +1,7 @@
 from sys import argv
 from enum import Enum
+import sqlite3
+from sqlite3 import Error
 import os
 import errno
 import argparse
@@ -8,15 +10,47 @@ import argparse
 class EFNote:
 
     def __init__(self, main_path):
+        """
+        Initializes class variables
+        """
         # Listen for
         self.root_path = main_path
         self.config_file = os.path.join(self.root_path, "formats.config")
+        self.notes_db = self.ConnectDB()
         self.formats = self.ParseFormatFile()
         self.LoadFiles()
 
 
+    def ConnectDB(self):
+        """
+        Connect to the notes database which is used to store all notes
+        """
+        try:
+            db_path = os.path.join(self.root_path, "data/notes.db")
+            db = sqlite3.connect(db_path)
+            return db
+        except Error as e:
+            print(e)
+
+        return None
+        
+    def RunStatement(self, conn, sql_statement):
+        """
+        Runs a SQL statement on the notes db. This is used to create and remove
+        format tables.
+        """
+        try:
+            cursor = conn.cursor()
+            cursor.execute(sql_statement)
+            self.notes_db.commit()
+        except Error as e:
+            print(e)
+
     def ParseFormatFile(self):
-        """Reads in config file (defaults to formats.config) to read supported formats"""
+        """
+        Reads in config file (defaults to formats.config) to read supported formats
+        and add necessary tables to DB if not already in.
+        """
         current_format = ""
         loaded_formats = {}
         
@@ -24,17 +58,33 @@ class EFNote:
             contents = line.split(' ')
 
             if(contents[0] == '<#'):
-                current_format = contents[1].rstrip('\n')
+                current_format = contents[1].rstrip('\n').lower()
                 loaded_formats[current_format] = []
+
             if(contents[0] == '<@'):
                 loaded_formats[current_format].append(contents[1].strip('\n'))
+
+        conn = self.ConnectDB()
+        for curr_format in loaded_formats:
+            sql_statement = """ CREATE TABLE IF NOT EXISTS {0} (
+                                    id integer PRIMARY KEY,""".format(curr_format)
+            
+            for field in loaded_formats[curr_format]:
+                sql_statement += "{} text,".format(field)
+
+            sql_statement = sql_statement.rstrip(",")
+            sql_statement += ");"
+
+            self.RunStatement(conn, sql_statement)
 
         return loaded_formats
 
 
 
     def LoadFiles(self):
-        """Gets list of files in the root directory"""
+        """
+        Gets list of files in the root directory
+        """
         self.file_list = os.listdir(self.root_path)
         self.file_list.sort(key=lambda x: os.stat(os.path.join(self.root_path, x)).st_mtime, reverse=True)
 
@@ -46,7 +96,7 @@ class EFNote:
 
         parser = argparse.ArgumentParser(description="Note-taking app for easy creation of custom formatted notes.")
 
-        parser.add_argument('command', nargs='?', action='store', choices=['new', 'view'])
+        parser.add_argument('command', nargs='?', action='store', choices=('new', 'view'))
         parser.add_argument('entry_type', nargs='?', action='store')
 
         results = parser.parse_args()
@@ -87,7 +137,7 @@ class EFNote:
         if(note_type is None):
             req_type = self.PromptForNoteType()
         else:
-            req_type = note_type
+            req_type = note_type.lower()
 
         # Ensure requested type exists, prompt user
         # for type creation if it doesn't. 
@@ -100,6 +150,17 @@ class EFNote:
                 self.Exit()
         
         print("Creating new {} entry".format(req_type))
+
+        new_entry = {}
+        for format_field in self.formats[req_type]:
+            print("---- {0:15} ----".format(format_field))
+            new_entry[format_field] = input()
+
+        save_entry = input("\nSave entry? [y/n] > ")
+
+        print(new_entry)
+
+        
                 
 
     def CreateNewFormat(self, format_name):
@@ -132,7 +193,7 @@ class EFNote:
                 supported_types += "\n"
 
         print("Supported Formats:\n{0}".format(supported_types))
-        return input("Which format would you like to create? > ")
+        return input("Which format would you like to create? > ").lower()
 
 
 
@@ -155,6 +216,7 @@ class EFNote:
         if(cont == 'y'):
             self.PromptForCommand()
         elif(cont == 'n'):
+            self.notes_db.close()
             quit()
         else:
             print("Unrecognized command...quitting...")
