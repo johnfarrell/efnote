@@ -14,6 +14,7 @@ class EFNote:
         Initializes class variables
         """
         # Listen for
+        self.debugMode = False
         self.root_path = main_path
         self.config_file = os.path.join(self.root_path, "formats.config")
         self.notes_db = self.ConnectDB()
@@ -88,7 +89,6 @@ class EFNote:
         self.file_list = os.listdir(self.root_path)
         self.file_list.sort(key=lambda x: os.stat(os.path.join(self.root_path, x)).st_mtime, reverse=True)
 
-
     def Run(self):
         """
         The main loop of this program, handles arguments from user
@@ -97,18 +97,22 @@ class EFNote:
         parser = argparse.ArgumentParser(description="Note-taking app for easy creation of custom formatted notes.")
 
         parser.add_argument('command', nargs='?', action='store', choices=('new', 'view'))
+        parser.add_argument('--debug', type=parseBoolCmd, nargs='?', action='store', default='false')
         parser.add_argument('entry_type', nargs='?', action='store')
 
         results = parser.parse_args()
 
+        if(results.debug):
+            self.debugMode = True
+
         if(results.command == None):
-            DebugLog("No passed command") 
+            DebugLog("No passed command", self.debugMode) 
             self.PromptForCommand()
         elif(results.command == 'new'):
-            DebugLog("Create new note command")
+            DebugLog("Create new note command", self.debugMode)
             self.CreateNewNote(results.entry_type)
         elif(results.command == 'view'):
-            DebugLog("View notes command")
+            DebugLog("View notes command", self.debugMode)
             self.ViewNotes(results.entry_type)
 
     def PromptForCommand(self):
@@ -151,17 +155,15 @@ class EFNote:
         
         print("Creating new {} entry".format(req_type))
 
+        # Make sure that the format type is valid
+        assert(req_type in self.formats)
+
         new_entry = {}
         for format_field in self.formats[req_type]:
             print("---- {0:15} ----".format(format_field))
             new_entry[format_field] = input()
 
         save_entry = input("\nSave entry? [y/n] > ")
-
-        print(new_entry)
-
-        
-                
 
     def CreateNewFormat(self, format_name):
         """
@@ -170,7 +172,9 @@ class EFNote:
         TO-DO: Finish implementation
         """
 
-        print("Create new Format")
+        # Test if format_name already exists
+        if(format_name in self.formats):
+            print("Format already exists...")
 
     def PromptForNoteType(self):
         """
@@ -226,5 +230,15 @@ class EFNote:
 # PATH = os.getenv('HOME', os.path.expanduser('~')) + '/.efnote'
 
 # Logs debug messages to the command-line
-def DebugLog(message):
-    print("LOG: {}".format(message))
+def DebugLog(message, status):
+    if(status):
+        print("LOG: {}".format(message))
+
+
+def parseBoolCmd(cmd):
+    if(cmd.lower() in ('1', 'y', 'yes', 't', 'true')):
+        return True
+    elif (cmd.lower() in ('0', 'n', 'no', 'f', 'false')):
+        return False
+    else:
+        return argparse.ArgumentTypeError("Expected boolean")
