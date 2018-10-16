@@ -41,7 +41,6 @@ class EFNote:
         format tables.
         """
         try:
-            print(sql_statement)
             conn = self.notes_db
             cursor = conn.cursor()
             cursor.execute(sql_statement)
@@ -250,7 +249,18 @@ would you like to create one? [y/n] > """.format(req_type))
         if note_type is None:
             note_type = self.PromptForNoteType()
         statement = "SELECT * FROM {}".format(note_type)
-        print(self.RunStatement(statement))
+        notes = self.RunStatement(statement)
+
+        if len(notes) == 0:
+            print("No {} entries...".format(note_type))
+        else:
+            i = 1
+            for note in notes:
+                temp_str = "{}: ".format(i)
+                for val in note:
+                    temp_str += val + " "
+                print(temp_str.rstrip(" "))
+            i += 1
 
         self.Exit()
 
