@@ -55,7 +55,8 @@ $ git clone https://github.com/johnfarrell/efnote.git
 This will install any dependencies and create a symlink to the directory allowing you to run efnote from anywhere
 
 ```
-$ python3 install.py
+$ cd efnote
+$ ./install 
 ```
 
 #### Run EFNote
@@ -72,7 +73,8 @@ adding a feature request using the [enhancement](https://github.com/FARRELLJJOHN
 
  - [x] Create To-Do list.
  - [ ] Create installation script.
- - [ ] Implement supported format note creation.
+ - [x] Implement supported format note creation.
+ - [x] Specific note type gross view
  - [ ] Created note searching
  - [ ] Interactive note format creation
 
