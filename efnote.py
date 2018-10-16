@@ -35,15 +35,19 @@ class EFNote:
 
         return None
 
-    def RunStatement(self, conn, sql_statement):
+    def RunStatement(self, sql_statement):
         """
         Runs a SQL statement on the notes db. This is used to create and remove
         format tables.
         """
         try:
+            print(sql_statement)
+            conn = self.notes_db
             cursor = conn.cursor()
             cursor.execute(sql_statement)
+            vals = cursor.fetchall()
             self.notes_db.commit()
+            return vals
         except Error as e:
             print(e)
 
@@ -65,10 +69,10 @@ class EFNote:
             if contents[0] == '<@':
                 loaded_formats[current_format].append(contents[1].strip('\n'))
 
-        conn = self.ConnectDB()
+        # TODO: Find a better way to do this
         for curr_format in loaded_formats:
             sql_statement = """CREATE TABLE IF NOT EXISTS {0} (
-                               id integer PRIMARY KEY,""".format(curr_format)
+                               """.format(curr_format)
 
             for field in loaded_formats[curr_format]:
                 sql_statement += "{} text,".format(field)
@@ -76,7 +80,7 @@ class EFNote:
             sql_statement = sql_statement.rstrip(",")
             sql_statement += ");"
 
-            self.RunStatement(conn, sql_statement)
+            self.RunStatement(sql_statement)
 
         return loaded_formats
 
@@ -181,9 +185,29 @@ would you like to create one? [y/n] > """.format(req_type))
 
         save_entry = input("\nSave entry? [y/n] > ")
 
+        if parseBoolCmd(save_entry):
+            sql_value_string = self.createSQLEntryString(new_entry)
+            sql_str = "INSERT INTO {} VALUES {}".format(req_type,
+                                                        sql_value_string)
+            
+            self.RunStatement(sql_str)
+
+    def createSQLEntryString(self, entry_items):
+        """
+        Concatenates a list of strings into a format for easy entry into
+        a SQL table
+        """
+        print(entry_items)
+        return_str = "("
+        for entry_type in entry_items:
+            return_str += "'" + entry_items[entry_type] + "'" + ','
+        return return_str.rstrip(',') + ")"
+
     def CreateNewFormat(self, format_name):
         """
         Guides user through easy creation of new formats
+
+        Creates a new table in the storage db for the format.
 
         TO-DO: Finish implementation
         """
@@ -191,6 +215,7 @@ would you like to create one? [y/n] > """.format(req_type))
         # Test if format_name already exists
         if format_name in self.formats:
             print("Format already exists...")
+            return
 
     def PromptForNoteType(self):
         """
@@ -218,11 +243,14 @@ would you like to create one? [y/n] > """.format(req_type))
     def ViewNotes(self, note_type):
         """
         Views notes of specific type; views all notes if none provided
+
+        TODO: Implement database lookup and listing
         """
-        for file in self.file_list:
-            print("File {0:15} (last modified: {1:30})".format(
-                file,
-                os.stat(os.path.join(self.root_path, file)).st_mtime))
+        
+        if note_type is None:
+            note_type = self.PromptForNoteType()
+        statement = "SELECT * FROM {}".format(note_type)
+        print(self.RunStatement(statement))
 
         self.Exit()
 
