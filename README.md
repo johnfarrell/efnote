@@ -77,6 +77,10 @@ adding a feature request using the [enhancement](https://github.com/FARRELLJJOHN
  - [x] Specific note type gross view
  - [ ] Created note searching
  - [ ] Interactive note format creation
+ - [ ] Note deletion
+ - [ ] Note editing
+   - [ ] Configurable sections that allow editing of formats 
+ - [ ] Format deletion
 
 ## Issues
 Please use the GitHub [issue tracker](https://github.com/FARRELLJJOHN/efnote/issues)
