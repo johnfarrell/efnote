@@ -2,6 +2,7 @@ import sqlite3
 from sqlite3 import Error
 import os
 import argparse
+import shutil
 
 
 # Handles background code
@@ -98,24 +99,27 @@ class EFNote:
         """
 
         parser = argparse.ArgumentParser(
-            description="""Note-taking app for easy
-creation of custom formatted notes.""")
+            description="""Note-taking app for easy creation of custom formatted notes."""
+        )
 
         parser.add_argument(
             'command',
             nargs='?',
             action='store',
-            choices=('new', 'view'))
+            choices=('new', 'view')
+        )
         parser.add_argument(
             '--debug',
             type=parseBoolCmd,
             nargs='?',
             action='store',
-            default='false')
+            default='false'
+        )
         parser.add_argument(
             'entry_type',
             nargs='?',
-            action='store')
+            action='store'
+        )
 
         results = parser.parse_args()
 
@@ -164,8 +168,8 @@ creation of custom formatted notes.""")
         # Ensure requested type exists, prompt user
         # for type creation if it doesn't.
         if req_type not in self.formats:
-            new_format = input("""There is no '{}' format,
-would you like to create one? [y/n] > """.format(req_type))
+            new_format = input("""There is no '{0}' format {1} Would you like to create one? [y/n] > """
+                               .format(req_type, os.linesep))
 
             if new_format == 'y':
                 self.CreateNewFormat(req_type)
@@ -179,7 +183,7 @@ would you like to create one? [y/n] > """.format(req_type))
 
         new_entry = {}
         for format_field in self.formats[req_type]:
-            print("---- {0:15} ----".format(format_field))
+            print("---- {0:^15} ----".format(format_field))
             new_entry[format_field] = input()
 
         save_entry = input("\nSave entry? [y/n] > ")
@@ -216,9 +220,11 @@ would you like to create one? [y/n] > """.format(req_type))
             print("Format already exists...")
             return
 
-    def PromptForNoteType(self):
+    def PromptForNoteType(self, action="create"):
         """
         Prompts user to enter a note format.
+        (optional) action -> Modifies the input prompt to accurately depict
+        what the note format will be used for (viewing, creating, etc.)
         """
         supported_types = ""
         counter = 0
@@ -237,7 +243,7 @@ would you like to create one? [y/n] > """.format(req_type))
                 supported_types += "\n"
 
         print("Supported Formats:\n{0}".format(supported_types))
-        return input("Which format would you like to create? > ").lower()
+        return input("Which format would you like to {}? > ".format(action)).lower()
 
     def ViewNotes(self, note_type):
         """
@@ -245,22 +251,49 @@ would you like to create one? [y/n] > """.format(req_type))
 
         TODO: Implement database lookup and listing
         """
-        
+        # retrieves terminal size
+        term_size = shutil.get_terminal_size()
+        concatenated_note = False
+
         if note_type is None:
-            note_type = self.PromptForNoteType()
+            note_type = self.PromptForNoteType("view")
         statement = "SELECT * FROM {}".format(note_type)
         notes = self.RunStatement(statement)
 
         if len(notes) == 0:
             print("No {} entries...".format(note_type))
         else:
-            i = 1
+            note_map = {}
+            note_number = 1
             for note in notes:
-                temp_str = "{}: ".format(i)
+                temp_str = "{}: ".format(note_number)
                 for val in note:
                     temp_str += val + " "
-                print(temp_str.rstrip(" "))
-            i += 1
+
+                note_map[note_number] = temp_str  # Memoize the note for potential later retrieval
+                if len(temp_str) > term_size.columns - 5:
+                    temp_str = (temp_str[:term_size.columns - 7] + '..')
+                    concatenated_note = True
+                else:
+                    temp_str = temp_str.rstrip(" ")
+
+                print(temp_str)
+
+                note_number += 1
+
+            if concatenated_note:
+                print(os.linesep + "There appears to be one (or more) notes that are concatenated")
+                view_note = input("If you would like to expand a note, enter the number (otherwise, n) > ")
+                try:
+                    note_index = int(view_note)
+                    print(os.linesep + note_map[note_index])
+                except ValueError:
+                    # The value of view_note is not an integer, so continue
+                    pass
+                except KeyError:
+                    # The input WAS a number, but it isn't a valid note number
+                    print("That is not a valid note number.")
+                    pass
 
         self.Exit()
 
