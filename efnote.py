@@ -98,24 +98,27 @@ class EFNote:
         """
 
         parser = argparse.ArgumentParser(
-            description="""Note-taking app for easy
-creation of custom formatted notes.""")
+            description="""Note-taking app for easy creation of custom formatted notes."""
+        )
 
         parser.add_argument(
             'command',
             nargs='?',
             action='store',
-            choices=('new', 'view'))
+            choices=('new', 'view')
+        )
         parser.add_argument(
             '--debug',
             type=parseBoolCmd,
             nargs='?',
             action='store',
-            default='false')
+            default='false'
+        )
         parser.add_argument(
             'entry_type',
             nargs='?',
-            action='store')
+            action='store'
+        )
 
         results = parser.parse_args()
 
