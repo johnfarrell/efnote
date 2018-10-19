@@ -2,6 +2,7 @@ import sqlite3
 from sqlite3 import Error
 import os
 import argparse
+import shutil
 
 
 # Handles background code
@@ -250,22 +251,28 @@ class EFNote:
 
         TODO: Implement database lookup and listing
         """
-        
+        # retrieves terminal size
+        term_size = shutil.get_terminal_size()
+
         if note_type is None:
-            note_type = self.PromptForNoteType()
+            note_type = self.PromptForNoteType("view")
         statement = "SELECT * FROM {}".format(note_type)
         notes = self.RunStatement(statement)
 
         if len(notes) == 0:
             print("No {} entries...".format(note_type))
         else:
-            i = 1
+            note_number = 1
             for note in notes:
-                temp_str = "{}: ".format(i)
+                temp_str = "{}: ".format(note_number)
                 for val in note:
                     temp_str += val + " "
-                print(temp_str.rstrip(" "))
-            i += 1
+
+                print((temp_str[:term_size.columns - 7] + '..')
+                      if len(temp_str) > term_size.columns - 5
+                      else temp_str.rstrip(" "))
+
+                note_number += 1
 
         self.Exit()
 
