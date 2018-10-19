@@ -167,8 +167,8 @@ class EFNote:
         # Ensure requested type exists, prompt user
         # for type creation if it doesn't.
         if req_type not in self.formats:
-            new_format = input("""There is no '{}' format,
-would you like to create one? [y/n] > """.format(req_type))
+            new_format = input("""There is no '{0}' format {1} Would you like to create one? [y/n] > """
+                               .format(req_type, os.linesep))
 
             if new_format == 'y':
                 self.CreateNewFormat(req_type)
@@ -182,7 +182,7 @@ would you like to create one? [y/n] > """.format(req_type))
 
         new_entry = {}
         for format_field in self.formats[req_type]:
-            print("---- {0:15} ----".format(format_field))
+            print("---- {0:^15} ----".format(format_field))
             new_entry[format_field] = input()
 
         save_entry = input("\nSave entry? [y/n] > ")
@@ -219,9 +219,11 @@ would you like to create one? [y/n] > """.format(req_type))
             print("Format already exists...")
             return
 
-    def PromptForNoteType(self):
+    def PromptForNoteType(self, action="create"):
         """
         Prompts user to enter a note format.
+        (optional) action -> Modifies the input prompt to accurately depict
+        what the note format will be used for (viewing, creating, etc.)
         """
         supported_types = ""
         counter = 0
@@ -240,7 +242,7 @@ would you like to create one? [y/n] > """.format(req_type))
                 supported_types += "\n"
 
         print("Supported Formats:\n{0}".format(supported_types))
-        return input("Which format would you like to create? > ").lower()
+        return input("Which format would you like to {}? > ".format(action)).lower()
 
     def ViewNotes(self, note_type):
         """
