@@ -253,6 +253,7 @@ class EFNote:
         """
         # retrieves terminal size
         term_size = shutil.get_terminal_size()
+        concatenated_note = False
 
         if note_type is None:
             note_type = self.PromptForNoteType("view")
@@ -262,17 +263,37 @@ class EFNote:
         if len(notes) == 0:
             print("No {} entries...".format(note_type))
         else:
+            note_map = {}
             note_number = 1
             for note in notes:
                 temp_str = "{}: ".format(note_number)
                 for val in note:
                     temp_str += val + " "
 
-                print((temp_str[:term_size.columns - 7] + '..')
-                      if len(temp_str) > term_size.columns - 5
-                      else temp_str.rstrip(" "))
+                note_map[note_number] = temp_str  # Memoize the note for potential later retrieval
+                if len(temp_str) > term_size.columns - 5:
+                    temp_str = (temp_str[:term_size.columns - 7] + '..')
+                    concatenated_note = True
+                else:
+                    temp_str = temp_str.rstrip(" ")
+
+                print(temp_str)
 
                 note_number += 1
+
+            if concatenated_note:
+                print(os.linesep + "There appears to be one (or more) notes that are concatenated")
+                view_note = input("If you would like to expand a note, enter the number (otherwise, n) > ")
+                try:
+                    note_index = int(view_note)
+                    print(os.linesep + note_map[note_index])
+                except ValueError:
+                    # The value of view_note is not an integer, so continue
+                    pass
+                except KeyError:
+                    # The input WAS a number, but it isn't a valid note number
+                    print("That is not a valid note number.")
+                    pass
 
         self.Exit()
 
