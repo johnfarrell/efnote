@@ -265,8 +265,8 @@ class EFNote:
         statement = "SELECT * FROM {}".format(note_type)
         notes = self.RunStatement(statement)
 
-        if len(notes) == 0:
-            print("No {} entries...".format(note_type))
+        if notes is None:
+            print("No {} entries... (check your spelling?)".format(note_type))
         else:
             note_map = {}
             note_number = 1
