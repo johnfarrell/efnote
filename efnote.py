@@ -141,15 +141,20 @@ class EFNote:
         Prompts the user for an action if none was provided in program args
         """
 
+        function_map = {
+            "NEW": self.CreateNewNote,
+            "N": self.CreateNewNote,
+            "VIEW": self.ViewNotes,
+            "V": self.ViewNotes,
+            "QUIT": quit,
+            "Q": quit,
+        }
+
         command = input("\nNEW | VIEW | QUIT [n/v/q] > ")
 
-        if command == 'n':
-            self.CreateNewNote(None)
-        elif command == 'v':
-            self.ViewNotes(None)
-        elif command == 'q':
-            quit()
-        else:
+        try:
+            function_map[command.capitalize()](None)
+        except KeyError:
             print("Unrecognized command...")
             self.PromptForCommand()
 
